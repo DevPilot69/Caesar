@@ -1,10 +1,5 @@
-import DashboardSectionPlaceholder from "@/components/dashboard/section-placeholder";
+import { CampaignModulePage } from "@/components/dashboard/module-pages";
 
 export default function Page() {
-  return (
-    <DashboardSectionPlaceholder
-      title="Campaign Actions"
-      description="This Caesar module is wired in navigation and will connect to the domains layer next."
-    />
-  );
+  return <CampaignModulePage />;
 }

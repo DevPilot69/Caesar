@@ -466,12 +466,37 @@ body::before {
   animation: donut-spin-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes ticker-scroll {
-  from {
-    transform: translateX(0);
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
   }
-  to {
-    transform: translateX(-50%);
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.dash-hero {
+  box-shadow:
+    0 22px 56px rgba(16, 60, 48, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 0 0 1px rgba(12, 122, 95, 0.05);
+}
+
+.dash-quiet {
+  opacity: 0.92;
+}
+
+.dash-quiet:hover {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
   }
 }
 
@@ -480,6 +505,24 @@ body::before {
   animation: ticker-scroll 32s linear infinite;
 }
 
-.ticker-track:hover {
-  animation-play-state: paused;
+@keyframes map-up-rise {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  60% {
+    transform: translate(0, -22px) scale(1.09);
+  }
+  100% {
+    transform: translate(0, -14px) scale(1.06);
+  }
+}
+
+.map-up-rise {
+  animation: map-up-rise 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-up-rise {
+    animation: none;
+  }
 }

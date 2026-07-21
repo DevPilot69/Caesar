@@ -230,7 +230,13 @@ export function VoterInsightsPage() {
                 <FilterSelect
                   label="District"
                   value={district}
-                  options={["Agra", "Lucknow", "Varanasi"]}
+                  options={[
+                    "Agra",
+                    "Lucknow",
+                    "Varanasi",
+                    "Meerut",
+                    "Ghaziabad",
+                  ]}
                   onChange={setDistrict}
                 />
                 <FilterSelect
@@ -240,10 +246,7 @@ export function VoterInsightsPage() {
                     "Agra North",
                     "Lucknow Central",
                     "Varanasi Cantt",
-                    "Gorakhpur Urban",
                     "Meerut South",
-                    "Prayagraj West",
-                    "Kanpur Cantt",
                     "Ghaziabad",
                   ]}
                   onChange={setConstituency}

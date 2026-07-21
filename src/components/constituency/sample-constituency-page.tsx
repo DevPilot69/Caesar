@@ -8,7 +8,9 @@ import {
   MapPin,
   Menu,
   Radio,
+  ShieldAlert,
   Sparkles,
+  Thermometer,
   X,
   Zap,
 } from "lucide-react";
@@ -27,6 +29,18 @@ const sentimentTone = {
   Positive: "text-brand",
   Neutral: "text-ink-muted",
   Negative: "text-coral",
+} as const;
+
+const moodTone = {
+  Stable: "bg-brand-soft text-brand",
+  Heating: "bg-accent-soft text-[#8a6f2e]",
+  Volatile: "bg-coral-soft text-coral",
+} as const;
+
+const riskTone = {
+  Low: "bg-brand-soft text-brand",
+  Moderate: "bg-accent-soft text-[#8a6f2e]",
+  High: "bg-coral-soft text-coral",
 } as const;
 
 export function SampleConstituencyPage({ data }: { data: SampleConstituency }) {
@@ -97,6 +111,18 @@ export function SampleConstituencyPage({ data }: { data: SampleConstituency }) {
                 <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand">
                   Sample theatre
                 </span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${moodTone[data.mood]}`}
+                >
+                  <Thermometer className="h-3 w-3" />
+                  {data.mood}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${riskTone[data.risk]}`}
+                >
+                  <ShieldAlert className="h-3 w-3" />
+                  {data.risk} risk
+                </span>
               </div>
               <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-ink-muted">
                 {data.summary}
@@ -127,6 +153,41 @@ export function SampleConstituencyPage({ data }: { data: SampleConstituency }) {
         </header>
 
         <main className="flex-1 space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+          <article className="dash-card p-5">
+            <div className="relative z-[1] flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 className="font-display text-base font-bold text-ink">
+                  2022 Vote Share Snapshot
+                </h3>
+                <p className="text-xs text-ink-muted">Mock series for demo</p>
+              </div>
+            </div>
+            <div className="relative z-[1] mt-4 flex h-3 overflow-hidden rounded-full border border-white/70 bg-white/35">
+              {data.voteShare.map((v) => (
+                <div
+                  key={v.party}
+                  className="h-full first:rounded-l-full last:rounded-r-full"
+                  style={{ width: `${v.percent}%`, backgroundColor: v.color }}
+                  title={`${v.party} ${v.percent}%`}
+                />
+              ))}
+            </div>
+            <ul className="relative z-[1] mt-3 flex flex-wrap gap-3">
+              {data.voteShare.map((v) => (
+                <li
+                  key={v.party}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-muted"
+                >
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: v.color }}
+                  />
+                  {v.party} {v.percent}%
+                </li>
+              ))}
+            </ul>
+          </article>
+
           <div className="stagger-in grid gap-5 xl:grid-cols-[0.95fr_1.15fr]">
             <ConstituencyProfileCard items={data.profile} />
 

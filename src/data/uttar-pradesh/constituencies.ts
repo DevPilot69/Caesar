@@ -7,12 +7,14 @@ export type UpConstituencyListItem = {
   summary: string;
   enabled: boolean;
   badge: ConstituencyBadge | null;
-  /** Dedicated rich page (not the generic sample route) */
   dedicated?: boolean;
   voters: string;
   lastWinner: string;
   margin: string;
   swing: "High" | "Medium" | "Low";
+  mood: "Stable" | "Heating" | "Volatile";
+  risk: "Low" | "Moderate" | "High";
+  accent: string;
 };
 
 export type SampleConstituency = {
@@ -22,6 +24,9 @@ export type SampleConstituency = {
   state: string;
   summary: string;
   election: { title: string; daysToGo: number };
+  mood: "Stable" | "Heating" | "Volatile";
+  risk: "Low" | "Moderate" | "High";
+  voteShare: { party: string; percent: number; color: string }[];
   profile: {
     id: string;
     label: string;
@@ -41,12 +46,14 @@ export type SampleConstituency = {
   actions: string[];
 };
 
+/** Five flagship UP theatres for the Caesar demo */
 export const upConstituencyIndex: UpConstituencyListItem[] = [
   {
     slug: "agra-north",
     name: "Agra North",
     district: "Agra",
-    summary: "Live war-room view — signals, emotion radar, alerts",
+    summary:
+      "Live war-room theatre — emotion radar, ground signals, and ranked actions.",
     enabled: true,
     badge: "Live",
     dedicated: true,
@@ -54,103 +61,73 @@ export const upConstituencyIndex: UpConstituencyListItem[] = [
     lastWinner: "BJP",
     margin: "+51,080",
     swing: "Medium",
-  },
-  {
-    slug: "agra",
-    name: "Agra (District overview)",
-    district: "Agra",
-    summary: "Moderate — BJP historically strong, now fragmenting.",
-    enabled: true,
-    badge: "Overview",
-    dedicated: true,
-    voters: "12.4 Lakh",
-    lastWinner: "BJP",
-    margin: "+42,316",
-    swing: "Medium",
+    mood: "Heating",
+    risk: "Moderate",
+    accent: "#0a8f6c",
   },
   {
     slug: "lucknow-central",
     name: "Lucknow Central",
     district: "Lucknow",
-    summary: "Urban capital seat — governance narrative, middle-class swing.",
+    summary:
+      "Capital urban seat — governance delivery and middle-class swing pockets.",
     enabled: true,
     badge: "Sample",
     voters: "4.1 Lakh",
     lastWinner: "BJP",
     margin: "+28,940",
     swing: "Medium",
+    mood: "Stable",
+    risk: "Moderate",
+    accent: "#0e9aa7",
   },
   {
     slug: "varanasi-cantt",
     name: "Varanasi Cantt",
     district: "Varanasi",
-    summary: "High visibility corridor — pilgrim economy + civic delivery.",
+    summary:
+      "High-visibility corridor — pilgrim economy, weaver livelihoods, civic proof.",
     enabled: true,
     badge: "Sample",
     voters: "3.6 Lakh",
     lastWinner: "BJP",
     margin: "+61,220",
     swing: "Low",
-  },
-  {
-    slug: "gorakhpur-urban",
-    name: "Gorakhpur Urban",
-    district: "Gorakhpur",
-    summary: "Stronghold pressure test — youth jobs & urban services.",
-    enabled: true,
-    badge: "Sample",
-    voters: "3.9 Lakh",
-    lastWinner: "BJP",
-    margin: "+44,110",
-    swing: "Medium",
+    mood: "Stable",
+    risk: "Low",
+    accent: "#c4a35a",
   },
   {
     slug: "meerut-south",
     name: "Meerut South",
     district: "Meerut",
-    summary: "Western UP swing pocket — community clusters + price stress.",
+    summary:
+      "Western UP swing pocket — community balance, mandi prices, law & order.",
     enabled: true,
     badge: "Sample",
     voters: "3.4 Lakh",
     lastWinner: "SP",
     margin: "+12,480",
     swing: "High",
-  },
-  {
-    slug: "prayagraj-west",
-    name: "Prayagraj West",
-    district: "Prayagraj",
-    summary: "Riverine urban mix — festival economy, sanitation, water.",
-    enabled: true,
-    badge: "Sample",
-    voters: "3.7 Lakh",
-    lastWinner: "BJP",
-    margin: "+19,760",
-    swing: "High",
-  },
-  {
-    slug: "kanpur-cantt",
-    name: "Kanpur Cantt",
-    district: "Kanpur Nagar",
-    summary: "Industrial belt seat — MSME distress & employment pulse.",
-    enabled: true,
-    badge: "Sample",
-    voters: "3.2 Lakh",
-    lastWinner: "BJP",
-    margin: "+8,940",
-    swing: "High",
+    mood: "Volatile",
+    risk: "High",
+    accent: "#e07a5f",
   },
   {
     slug: "ghaziabad",
     name: "Ghaziabad",
     district: "Ghaziabad",
-    summary: "NCR peri-urban — migration, transit, and housing pressure.",
+    summary:
+      "NCR peri-urban pressure — transit, housing, RWAs, and migrant turnout.",
     enabled: true,
     badge: "Sample",
     voters: "4.8 Lakh",
     lastWinner: "BJP",
     margin: "+33,500",
     swing: "Medium",
+    mood: "Heating",
+    risk: "Moderate",
+    accent: "#056b52",
   },
 ];
 
@@ -160,12 +137,25 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
     name: "Lucknow Central",
     district: "Lucknow",
     state: "Uttar Pradesh",
-    summary: "Urban capital seat — governance narrative, middle-class swing.",
+    summary:
+      "Capital urban seat — governance delivery and middle-class swing pockets.",
     election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
+    mood: "Stable",
+    risk: "Moderate",
+    voteShare: [
+      { party: "BJP", percent: 48, color: "#f59e0b" },
+      { party: "SP", percent: 32, color: "#ef4444" },
+      { party: "Others", percent: 20, color: "#94a3b8" },
+    ],
     profile: [
       { id: "voters", label: "Total Voters", value: "4.1 Lakh", icon: "vote" },
       { id: "turnout", label: "Turnout 2022", value: "58.4%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Urban Hindu / Kayastha", icon: "users" },
+      {
+        id: "community",
+        label: "Dominant Mix",
+        value: "Urban Hindu / Kayastha",
+        icon: "users",
+      },
       { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
       { id: "margin", label: "Margin", value: "+28,940", icon: "gap" },
     ],
@@ -205,9 +195,9 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
       },
     ],
     takeaways: [
-      "Middle-class swing is sensitive to visible civic delivery this quarter.",
-      "Trader corridors (Aminabad / Chowk) need consistent follow-through.",
-      "Capital visibility helps — but booth heat is uneven across wards.",
+      "Middle-class swing tracks visible civic delivery this quarter.",
+      "Trader corridors need consistent follow-through, not one-off drives.",
+      "Capital optics help — but booth heat is uneven across wards.",
     ],
     actions: [
       "Schedule trader roundtable in Aminabad within 72h",
@@ -220,12 +210,25 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
     name: "Varanasi Cantt",
     district: "Varanasi",
     state: "Uttar Pradesh",
-    summary: "High visibility corridor — pilgrim economy + civic delivery.",
+    summary:
+      "High-visibility corridor — pilgrim economy, weaver livelihoods, civic proof.",
     election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
+    mood: "Stable",
+    risk: "Low",
+    voteShare: [
+      { party: "BJP", percent: 56, color: "#f59e0b" },
+      { party: "SP", percent: 24, color: "#ef4444" },
+      { party: "Others", percent: 20, color: "#94a3b8" },
+    ],
     profile: [
       { id: "voters", label: "Total Voters", value: "3.6 Lakh", icon: "vote" },
       { id: "turnout", label: "Turnout 2022", value: "62.1%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Urban Hindu / Weavers", icon: "users" },
+      {
+        id: "community",
+        label: "Dominant Mix",
+        value: "Urban Hindu / Weavers",
+        icon: "users",
+      },
       { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
       { id: "margin", label: "Margin", value: "+61,220", icon: "gap" },
     ],
@@ -256,11 +259,18 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
         sentiment: "Positive",
         ago: "1h ago",
       },
+      {
+        id: "vc3",
+        source: "Volunteer · Sigra",
+        text: "Pilgrim queue management praised near two choke points.",
+        sentiment: "Positive",
+        ago: "3h ago",
+      },
     ],
     takeaways: [
       "Margin is large, but livelihood messaging still matters in weaver belts.",
-      "Pilgrim-season logistics are a reputation risk if delayed.",
-      "Keep sanitation wins highly visible on ground and WhatsApp desks.",
+      "Pilgrim-season logistics remain a reputation risk if delayed.",
+      "Sanitation wins compound when made highly visible on ground desks.",
     ],
     actions: [
       "Brief weaver associations on festival procurement window",
@@ -268,70 +278,30 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
       "Amplify sanitation before/after visuals weekly",
     ],
   },
-  "gorakhpur-urban": {
-    slug: "gorakhpur-urban",
-    name: "Gorakhpur Urban",
-    district: "Gorakhpur",
-    state: "Uttar Pradesh",
-    summary: "Stronghold pressure test — youth jobs & urban services.",
-    election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
-    profile: [
-      { id: "voters", label: "Total Voters", value: "3.9 Lakh", icon: "vote" },
-      { id: "turnout", label: "Turnout 2022", value: "59.8%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Urban OBCs / Traders", icon: "users" },
-      { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
-      { id: "margin", label: "Margin", value: "+44,110", icon: "gap" },
-    ],
-    booths: [
-      { name: "Civil Lines", status: "Strong" },
-      { name: "Rustampur Edge", status: "Swing" },
-      { name: "Medical College Belt", status: "Watch" },
-      { name: "Railway Colony", status: "Swing" },
-    ],
-    keyIssues: [
-      { label: "Youth Employment", percent: 61 },
-      { label: "Urban Drainage", percent: 47 },
-      { label: "Healthcare Access", percent: 40 },
-      { label: "Street Lighting", percent: 31 },
-    ],
-    signals: [
-      {
-        id: "gu1",
-        source: "Campus Desk",
-        text: "Medical College belt youth discussing private-job scarcity.",
-        sentiment: "Negative",
-        ago: "55m ago",
-      },
-      {
-        id: "gu2",
-        source: "Ward Coordinator",
-        text: "Drainage desilting completed in two Civil Lines wards.",
-        sentiment: "Positive",
-        ago: "2h ago",
-      },
-    ],
-    takeaways: [
-      "Stronghold optics need youth employment proof points, not slogans.",
-      "Drainage delivery in Civil Lines is transferable to swing edges.",
-      "Campus-adjacent booths are the early warning layer.",
-    ],
-    actions: [
-      "Host skill-fair micro-event near Medical College belt",
-      "Publish drainage completion map for 6 wards",
-      "Assign youth cell leads to Rustampur swing booths",
-    ],
-  },
   "meerut-south": {
     slug: "meerut-south",
     name: "Meerut South",
     district: "Meerut",
     state: "Uttar Pradesh",
-    summary: "Western UP swing pocket — community clusters + price stress.",
+    summary:
+      "Western UP swing pocket — community balance, mandi prices, law & order.",
     election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
+    mood: "Volatile",
+    risk: "High",
+    voteShare: [
+      { party: "SP", percent: 41, color: "#ef4444" },
+      { party: "BJP", percent: 38, color: "#f59e0b" },
+      { party: "Others", percent: 21, color: "#94a3b8" },
+    ],
     profile: [
       { id: "voters", label: "Total Voters", value: "3.4 Lakh", icon: "vote" },
       { id: "turnout", label: "Turnout 2022", value: "64.2%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Jat / Muslim / SC mix", icon: "users" },
+      {
+        id: "community",
+        label: "Dominant Mix",
+        value: "Jat / Muslim / SC mix",
+        icon: "users",
+      },
       { id: "winner", label: "Past Winner", value: "SP 2022", icon: "trophy" },
       { id: "margin", label: "Margin", value: "+12,480", icon: "gap" },
     ],
@@ -362,11 +332,18 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
         sentiment: "Neutral",
         ago: "1h ago",
       },
+      {
+        id: "ms3",
+        source: "Booth Captain",
+        text: "Rural fringe south still solid — volunteer attendance high.",
+        sentiment: "Positive",
+        ago: "2h ago",
+      },
     ],
     takeaways: [
       "High-swing seat — price narrative can flip booth clusters quickly.",
       "Community balance requires careful, evidence-backed outreach.",
-      "Lalkurti is a watch zone for law-and-order perception.",
+      "Lalkurti is the early-warning zone for law-and-order perception.",
     ],
     actions: [
       "Counter price narrative with local relief / PDS check visits",
@@ -374,123 +351,30 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
       "Map mandi influencer network for rapid rumor response",
     ],
   },
-  "prayagraj-west": {
-    slug: "prayagraj-west",
-    name: "Prayagraj West",
-    district: "Prayagraj",
-    state: "Uttar Pradesh",
-    summary: "Riverine urban mix — festival economy, sanitation, water.",
-    election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
-    profile: [
-      { id: "voters", label: "Total Voters", value: "3.7 Lakh", icon: "vote" },
-      { id: "turnout", label: "Turnout 2022", value: "60.5%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Urban mixed / SC pockets", icon: "users" },
-      { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
-      { id: "margin", label: "Margin", value: "+19,760", icon: "gap" },
-    ],
-    booths: [
-      { name: "Civil Lines West", status: "Strong" },
-      { name: "Katra Belt", status: "Swing" },
-      { name: "Ganga Side Wards", status: "Watch" },
-      { name: "Colony Clusters", status: "Swing" },
-    ],
-    keyIssues: [
-      { label: "Sanitation", percent: 57 },
-      { label: "Drinking Water", percent: 52 },
-      { label: "Festival Logistics", percent: 45 },
-      { label: "Unemployment", percent: 37 },
-    ],
-    signals: [
-      {
-        id: "pw1",
-        source: "Colony Volunteer",
-        text: "Water tanker roster disputes rising in two western colonies.",
-        sentiment: "Negative",
-        ago: "33m ago",
-      },
-      {
-        id: "pw2",
-        source: "Event Desk",
-        text: "Pre-festival prep meeting turnout solid among ward captains.",
-        sentiment: "Positive",
-        ago: "2h ago",
-      },
-    ],
-    takeaways: [
-      "Water reliability is the quiet swing driver between festivals.",
-      "Sanitation wins compound with pilgrim-season reputation.",
-      "Keep colony-level grievance loops under 48 hours.",
-    ],
-    actions: [
-      "Publish tanker roster with ward captain contacts",
-      "Audit sanitation blackspots along Ganga-side wards",
-      "Run colony grievance camp this weekend",
-    ],
-  },
-  "kanpur-cantt": {
-    slug: "kanpur-cantt",
-    name: "Kanpur Cantt",
-    district: "Kanpur Nagar",
-    state: "Uttar Pradesh",
-    summary: "Industrial belt seat — MSME distress & employment pulse.",
-    election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
-    profile: [
-      { id: "voters", label: "Total Voters", value: "3.2 Lakh", icon: "vote" },
-      { id: "turnout", label: "Turnout 2022", value: "57.9%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Workers / Traders", icon: "users" },
-      { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
-      { id: "margin", label: "Margin", value: "+8,940", icon: "gap" },
-    ],
-    booths: [
-      { name: "Factory Line East", status: "Watch" },
-      { name: "Cantt Market", status: "Swing" },
-      { name: "Labour Colonies", status: "Swing" },
-      { name: "Officer Enclave", status: "Strong" },
-    ],
-    keyIssues: [
-      { label: "MSME Credit", percent: 66 },
-      { label: "Job Losses", percent: 58 },
-      { label: "Air Quality", percent: 41 },
-      { label: "Public Transport", percent: 34 },
-    ],
-    signals: [
-      {
-        id: "kc1",
-        source: "Trade Union Desk",
-        text: "Two MSME units reported delayed wages this week.",
-        sentiment: "Negative",
-        ago: "25m ago",
-      },
-      {
-        id: "kc2",
-        source: "Local Reporter",
-        text: "Skill centre inauguration generated short positive buzz.",
-        sentiment: "Positive",
-        ago: "3h ago",
-      },
-    ],
-    takeaways: [
-      "Thin margin — labour colony mood is decisive.",
-      "MSME credit stories outperform generic growth claims here.",
-      "Pair employment messaging with tangible skill-centre outcomes.",
-    ],
-    actions: [
-      "Open MSME grievance desk at Cantt Market for 5 days",
-      "Document wage-delay cases for rapid escalation path",
-      "Tour skill centre with local youth influencers",
-    ],
-  },
   ghaziabad: {
     slug: "ghaziabad",
     name: "Ghaziabad",
     district: "Ghaziabad",
     state: "Uttar Pradesh",
-    summary: "NCR peri-urban — migration, transit, and housing pressure.",
+    summary:
+      "NCR peri-urban pressure — transit, housing, RWAs, and migrant turnout.",
     election: { title: "Uttar Pradesh Assembly 2027", daysToGo: 216 },
+    mood: "Heating",
+    risk: "Moderate",
+    voteShare: [
+      { party: "BJP", percent: 47, color: "#f59e0b" },
+      { party: "SP", percent: 29, color: "#ef4444" },
+      { party: "Others", percent: 24, color: "#94a3b8" },
+    ],
     profile: [
       { id: "voters", label: "Total Voters", value: "4.8 Lakh", icon: "vote" },
       { id: "turnout", label: "Turnout 2022", value: "55.6%", icon: "percent" },
-      { id: "community", label: "Dominant Mix", value: "Migrant urban / OBC", icon: "users" },
+      {
+        id: "community",
+        label: "Dominant Mix",
+        value: "Migrant urban / OBC",
+        icon: "users",
+      },
       { id: "winner", label: "Past Winner", value: "BJP 2022", icon: "trophy" },
       { id: "margin", label: "Margin", value: "+33,500", icon: "gap" },
     ],
@@ -521,6 +405,13 @@ export const sampleConstituencies: Record<string, SampleConstituency> = {
         sentiment: "Positive",
         ago: "2h ago",
       },
+      {
+        id: "gz3",
+        source: "Colony Admin",
+        text: "Pollution advisory share rate spiked after evening AQI jump.",
+        sentiment: "Neutral",
+        ago: "3h ago",
+      },
     ],
     takeaways: [
       "NCR migrants vote delivery & commute first; ideology second.",
@@ -540,3 +431,11 @@ export function getSampleConstituency(slug: string) {
 }
 
 export const upConstituencyNames = upConstituencyIndex.map((c) => c.name);
+
+export const mapPins = [
+  { slug: "meerut-south", label: "Meerut", x: 214, y: 198 },
+  { slug: "ghaziabad", label: "Ghaziabad", x: 198, y: 208 },
+  { slug: "agra-north", label: "Agra North", x: 222, y: 258 },
+  { slug: "lucknow-central", label: "Lucknow", x: 278, y: 232 },
+  { slug: "varanasi-cantt", label: "Varanasi", x: 342, y: 278 },
+] as const;

@@ -1,10 +1,5 @@
-import DashboardSectionPlaceholder from "@/components/dashboard/section-placeholder";
+import { TrendsModulePage } from "@/components/dashboard/module-pages";
 
 export default function Page() {
-  return (
-    <DashboardSectionPlaceholder
-      title="Trends"
-      description="This Caesar module is wired in navigation and will connect to the domains layer next. For now, return to the Intelligence Dashboard for the live theatre view."
-    />
-  );
+  return <TrendsModulePage />;
 }
