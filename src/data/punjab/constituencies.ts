@@ -1,0 +1,86 @@
+import type { UpConstituencyListItem } from "@/data/uttar-pradesh/constituencies";
+export { punjabMapPins } from "@/data/punjab/map-pins";
+
+/** Five flagship Punjab theatres — independent of UP */
+export const punjabConstituencyIndex: UpConstituencyListItem[] = [
+  {
+    slug: "ludhiana-east",
+    name: "Ludhiana East",
+    district: "Ludhiana",
+    summary:
+      "Industrial belt — trader associations, youth jobs, and night-safety optics.",
+    enabled: true,
+    badge: "Live",
+    voters: "2.8 Lakh",
+    lastWinner: "INC",
+    margin: "+12,400",
+    swing: "Medium",
+    mood: "Heating",
+    risk: "High",
+    accent: "#0a8f6c",
+  },
+  {
+    slug: "amritsar-south",
+    name: "Amritsar South",
+    district: "Amritsar",
+    summary:
+      "Pilgrim-city seat — service delivery, waterlogging, and visitor optics.",
+    enabled: true,
+    badge: "Sample",
+    voters: "2.4 Lakh",
+    lastWinner: "AAP",
+    margin: "+8,920",
+    swing: "High",
+    mood: "Volatile",
+    risk: "High",
+    accent: "#0e9aa7",
+  },
+  {
+    slug: "mohali",
+    name: "Mohali",
+    district: "SAS Nagar",
+    summary:
+      "IT corridor suburb — campus density, traffic, and middle-class services.",
+    enabled: true,
+    badge: "Sample",
+    voters: "2.1 Lakh",
+    lastWinner: "AAP",
+    margin: "+15,210",
+    swing: "Low",
+    mood: "Stable",
+    risk: "Moderate",
+    accent: "#c4a35a",
+  },
+  {
+    slug: "jalandhar-central",
+    name: "Jalandhar Central",
+    district: "Jalandhar",
+    summary:
+      "Sports-city urban core — municipal delivery and minority street narratives.",
+    enabled: true,
+    badge: "Sample",
+    voters: "2.6 Lakh",
+    lastWinner: "INC",
+    margin: "+6,780",
+    swing: "High",
+    mood: "Heating",
+    risk: "High",
+    accent: "#ef4444",
+  },
+  {
+    slug: "bathinda-urban",
+    name: "Bathinda Urban",
+    district: "Bathinda",
+    summary:
+      "Malwa urban pocket — power plant optics, dust, and farmer-family spillover.",
+    enabled: true,
+    badge: "Sample",
+    voters: "2.2 Lakh",
+    lastWinner: "AAP",
+    margin: "+19,450",
+    swing: "Medium",
+    mood: "Stable",
+    risk: "Moderate",
+    accent: "#3b82f6",
+  },
+];

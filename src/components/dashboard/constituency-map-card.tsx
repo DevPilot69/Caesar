@@ -15,9 +15,10 @@ import {
   EmptyState,
   SuccessToast,
 } from "@/components/dashboard/ui-states";
-import { upConstituencyIndex } from "@/data/uttar-pradesh/constituencies";
+import { useStatePack } from "@/lib/use-state-pack";
 
 export function ConstituencyMapCard() {
+  const pack = useStatePack();
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [briefState, setBriefState] = useState<"idle" | "loading" | "done">(
@@ -25,20 +26,27 @@ export function ConstituencyMapCard() {
   );
   const [toast, setToast] = useState<string | null>(null);
 
+  useEffect(() => {
+    setSelectedSlug(null);
+    setQuery("");
+  }, [pack.code]);
+
+  const catalogue = pack.constituencies;
+
   const selected = useMemo(
-    () => upConstituencyIndex.find((c) => c.slug === selectedSlug) ?? null,
-    [selectedSlug],
+    () => catalogue.find((c) => c.slug === selectedSlug) ?? null,
+    [catalogue, selectedSlug],
   );
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return upConstituencyIndex.slice(0, 5);
-    return upConstituencyIndex.filter(
+    if (!q) return catalogue.slice(0, 5);
+    return catalogue.filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.district.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [query, catalogue]);
 
   useEffect(() => {
     if (!toast) return;
@@ -51,7 +59,7 @@ export function ConstituencyMapCard() {
     setBriefState("loading");
     window.setTimeout(() => {
       setBriefState("done");
-      setToast(`Brief ready — ${selected.name} pack queued for download.`);
+      setToast(`Brief ready — ${selected.name} (${pack.state.shortName}) queued.`);
       window.setTimeout(() => setBriefState("idle"), 1600);
     }, 1200);
   }
@@ -65,6 +73,8 @@ export function ConstituencyMapCard() {
       ]
     : [];
 
+  const isUp = pack.code === "UP";
+
   return (
     <>
       <article className="dash-card dash-hero flex min-h-[460px] flex-col overflow-hidden lg:min-h-[520px]">
@@ -73,7 +83,7 @@ export function ConstituencyMapCard() {
             {selected ? (
               <div className="animate-float-in">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
-                  Theatre locked
+                  Theatre locked · {pack.state.shortName} view
                 </p>
                 <h3 className="font-display mt-1 text-xl font-bold text-ink">
                   {selected.name}
@@ -87,15 +97,11 @@ export function ConstituencyMapCard() {
                     Why this matters
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-ink/85">
-                    Evidence points to a{" "}
+                    All evidence here is from the{" "}
                     <span className="font-bold text-brand-dark">
-                      {selected.mood.toLowerCase()}
+                      {pack.state.name}
                     </span>{" "}
-                    theatre with{" "}
-                    <span className="font-bold text-brand-dark">
-                      {selected.swing.toLowerCase()} swing
-                    </span>
-                    . Prioritize booth coverage and a same-day brief.
+                    pack only — other states stay out of this view.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {evidence.map((chip) => (
@@ -110,13 +116,19 @@ export function ConstituencyMapCard() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    href={`/dashboard/constituencies/${selected.slug}`}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-dark to-brand px-3.5 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(5,107,82,0.28)]"
-                  >
-                    Open theatre
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  {isUp ? (
+                    <Link
+                      href={`/dashboard/constituencies/${selected.slug}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-dark to-brand px-3.5 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(5,107,82,0.28)]"
+                    >
+                      Open theatre
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-brand/20 bg-white/70 px-3.5 py-2.5 text-sm font-bold text-brand-dark">
+                      Punjab sample theatre
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={generateBrief}
@@ -145,11 +157,12 @@ export function ConstituencyMapCard() {
             ) : (
               <>
                 <h3 className="font-display text-xl font-bold text-ink">
-                  Select a theatre
+                  {pack.state.name} theatres
                 </h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                  India rises into Uttar Pradesh. Pin one of five flagship
-                  constituencies to unlock memory, evidence, and a brief.
+                  You are in the {pack.state.shortName} view. Pin one of{" "}
+                  {catalogue.length} sample constituencies — map and modules
+                  stay in this state only.
                 </p>
               </>
             )}
@@ -161,7 +174,7 @@ export function ConstituencyMapCard() {
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search constituency..."
+                    placeholder={`Search ${pack.state.shortName} constituency...`}
                     className="w-full rounded-xl border border-brand/12 bg-brand-mist/60 py-2.5 pl-10 pr-3 text-sm text-ink outline-none ring-brand/25 placeholder:text-ink-muted/70 focus:bg-white focus:ring-2"
                   />
                 </label>
@@ -178,7 +191,7 @@ export function ConstituencyMapCard() {
                 {suggestions.length === 0 ? (
                   <EmptyState
                     title="No theatres match"
-                    description="Try Agra, Lucknow, Varanasi, Meerut, or Ghaziabad."
+                    description={`Nothing in ${pack.state.name} matches that query.`}
                   />
                 ) : (
                   <ul className="space-y-1">
@@ -221,7 +234,7 @@ export function ConstituencyMapCard() {
               selectedSlug={selectedSlug}
               onSelect={(slug) => {
                 setSelectedSlug(slug);
-                const hit = upConstituencyIndex.find((c) => c.slug === slug);
+                const hit = catalogue.find((c) => c.slug === slug);
                 if (hit) setQuery(hit.name);
               }}
             />

@@ -25,6 +25,8 @@ import {
   VoteShareTrendChart,
 } from "@/components/insights/charts";
 import { voterInsightsAgraNorth as data } from "@/data/uttar-pradesh/voter-insights";
+import { useAuth } from "@/lib/auth/auth-context";
+import { StateScopeSwitcher } from "@/components/auth/state-scope-switcher";
 
 const partyTone: Record<string, string> = {
   BJP: "bg-[#f59e0b]/15 text-[#b45309]",
@@ -111,6 +113,7 @@ function FilterSelect({
 }
 
 export function VoterInsightsPage() {
+  const { activeState } = useAuth();
   const [mobileNav, setMobileNav] = useState(false);
   const [state, setState] = useState<string>(data.location.state);
   const [district, setDistrict] = useState<string>(data.location.district);
@@ -289,6 +292,15 @@ export function VoterInsightsPage() {
         </header>
 
         <main className="flex-1 space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <StateScopeSwitcher />
+            {activeState?.code === "PB" ? (
+              <p className="rounded-xl border border-brand/15 bg-brand-mist/70 px-3 py-2 text-xs font-semibold text-brand-dark">
+                Dedicated Punjab login — detailed voter pack ships next. Map,
+                media, alerts, and campaign already use Punjab-only data.
+              </p>
+            ) : null}
+          </div>
           <article className="dash-card relative overflow-hidden p-4 sm:p-5">
             <div className="pointer-events-none absolute -right-6 top-1/2 h-28 w-28 -translate-y-1/2 rounded-full bg-brand/15 blur-3xl" />
             <div className="relative z-[1] flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

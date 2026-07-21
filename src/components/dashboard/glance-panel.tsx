@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -7,7 +9,7 @@ import {
   Radio,
   Siren,
 } from "lucide-react";
-import { glanceStats } from "@/data/uttar-pradesh/dashboard-modules";
+import { useStatePack } from "@/lib/use-state-pack";
 
 const icons = {
   "New Signals": Radio,
@@ -24,6 +26,8 @@ const wraps = {
 } as const;
 
 export function GlancePanel() {
+  const pack = useStatePack();
+
   return (
     <article className="dash-card flex h-full flex-col p-5 sm:p-6">
       <div className="relative z-[1]">
@@ -31,14 +35,16 @@ export function GlancePanel() {
           Today at a Glance
         </h3>
         <p className="mt-1 text-xs text-ink-muted">
-          Live pulse across 5 UP theatres
+          {pack.state.name} only · {pack.state.theatresLabel}
         </p>
       </div>
 
       <ul className="relative z-[1] mt-5 flex-1 space-y-2.5">
-        {glanceStats.map((item) => {
+        {pack.glance.map((item) => {
           const Icon = icons[item.label as keyof typeof icons] ?? Radio;
-          const wrap = wraps[item.label as keyof typeof wraps] ?? "bg-brand-soft text-brand";
+          const wrap =
+            wraps[item.label as keyof typeof wraps] ??
+            "bg-brand-soft text-brand";
           return (
             <li key={item.label}>
               <Link
@@ -78,7 +84,7 @@ export function GlancePanel() {
         href="/dashboard/constituencies"
         className="relative z-[1] mt-5 inline-flex items-center gap-1.5 self-start text-sm font-bold text-brand transition hover:gap-2"
       >
-        View 5 theatres
+        Open constituencies
         <ArrowRight className="h-4 w-4" />
       </Link>
     </article>

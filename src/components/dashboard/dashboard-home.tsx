@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X, ChevronDown, MapPin, Sparkles } from "lucide-react";
+import { LogOut, Menu, X, Sparkles } from "lucide-react";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { AiInsightBanner } from "@/components/dashboard/ai-insight-banner";
 import { BreakingTicker } from "@/components/dashboard/breaking-ticker";
@@ -10,8 +10,11 @@ import { ConstituencyMapCard } from "@/components/dashboard/constituency-map-car
 import { GlancePanel } from "@/components/dashboard/glance-panel";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { SuccessToast } from "@/components/dashboard/ui-states";
+import { StateScopeSwitcher } from "@/components/auth/state-scope-switcher";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export function DashboardHome() {
+  const { session, activeState, logout } = useAuth();
   const [mobileNav, setMobileNav] = useState(false);
   const [briefToast, setBriefToast] = useState<string | null>(null);
   const [briefLoading, setBriefLoading] = useState(false);
@@ -23,20 +26,24 @@ export function DashboardHome() {
   }, [briefToast]);
 
   function headerBrief() {
-    if (briefLoading) return;
+    if (briefLoading || !activeState) return;
     setBriefLoading(true);
     window.setTimeout(() => {
       setBriefLoading(false);
-      setBriefToast("UP five-theatre brief queued — check Briefs.");
+      setBriefToast(
+        `${activeState.shortName} theatre brief queued — check Briefs.`,
+      );
     }, 1100);
   }
+
+  if (!session || !activeState) return null;
 
   return (
     <div className="dash-shell flex min-h-screen">
       <div className="sticky top-0 hidden h-screen lg:block">
         <DashboardSidebar
-          electionDays={216}
-          electionTitle="Uttar Pradesh Assembly 2027"
+          electionDays={activeState.electionDays}
+          electionTitle={activeState.electionTitle}
         />
       </div>
 
@@ -50,8 +57,8 @@ export function DashboardHome() {
           />
           <div className="relative h-full w-[280px] shadow-2xl">
             <DashboardSidebar
-              electionDays={216}
-              electionTitle="Uttar Pradesh Assembly 2027"
+              electionDays={activeState.electionDays}
+              electionTitle={activeState.electionTitle}
             />
             <button
               type="button"
@@ -77,7 +84,7 @@ export function DashboardHome() {
           </button>
           <p className="font-display text-sm font-bold text-ink">Caesar</p>
           <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand">
-            Live
+            {activeState.shortName}
           </span>
         </div>
 
@@ -85,22 +92,22 @@ export function DashboardHome() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-semibold text-brand">
-                Welcome back, Nikhil
+                {session.agencyName}
+                <span className="text-ink-muted">
+                  {" "}
+                  · code {session.accessCode}
+                </span>
               </p>
               <h1 className="font-display mt-0.5 text-2xl font-bold tracking-tight text-ink">
                 Intelligence Dashboard
               </h1>
+              <p className="mt-1 text-[11px] font-semibold text-ink-muted">
+                Dedicated {activeState.name} war room · code {session.accessCode}
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/80 bg-white/55 px-3 py-2 text-sm font-semibold text-ink shadow-sm backdrop-blur-md"
-              >
-                <MapPin className="h-4 w-4 text-brand" />
-                Uttar Pradesh · 5 theatres
-                <ChevronDown className="h-4 w-4 text-ink-muted" />
-              </button>
+              <StateScopeSwitcher />
               <button
                 type="button"
                 onClick={headerBrief}
@@ -111,6 +118,18 @@ export function DashboardHome() {
                   className={`h-4 w-4 ${briefLoading ? "animate-pulse" : ""}`}
                 />
                 {briefLoading ? "Generating…" : "Generate Brief"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  window.location.href = "/login";
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/80 bg-white/55 px-3 py-2 text-xs font-bold text-ink-muted backdrop-blur-md transition hover:text-coral"
+                aria-label="Sign out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
               </button>
             </div>
           </div>

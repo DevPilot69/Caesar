@@ -9,14 +9,15 @@ import {
   Swords,
   Newspaper,
   Settings,
-  MoreVertical,
   Sparkles,
   Shield,
   TrendingUp,
   MessageSquare,
   ClipboardList,
   PieChart,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth/auth-context";
 
 const mainNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -89,13 +90,20 @@ function NavLink({
 }
 
 export function DashboardSidebar({
-  electionDays = 216,
-  electionTitle = "Uttar Pradesh Assembly 2027",
+  electionDays,
+  electionTitle,
 }: {
   electionDays?: number;
   electionTitle?: string;
 }) {
   const pathname = usePathname();
+  const { session, activeState, logout } = useAuth();
+
+  const days = electionDays ?? activeState?.electionDays ?? 216;
+  const title =
+    electionTitle ?? activeState?.electionTitle ?? "State assembly cycle";
+  const displayName = session?.agencyName ?? "Agency";
+  const initials = session?.initials ?? "CA";
 
   return (
     <aside className="dash-sidebar flex h-full w-[272px] shrink-0 flex-col border-r border-brand/10">
@@ -108,10 +116,24 @@ export function DashboardSidebar({
             Caesar
           </p>
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">
-            Political Intelligence OS
+            Agency war room
           </p>
         </div>
       </div>
+
+      {session ? (
+        <div className="mx-3 mb-2 rounded-xl border border-brand/10 bg-white/50 px-3 py-2 backdrop-blur-sm">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-muted">
+            Active interface
+          </p>
+          <p className="mt-0.5 text-xs font-bold text-ink">
+            {activeState?.name ?? "—"}
+          </p>
+          <p className="mt-0.5 font-mono text-[10px] text-brand">
+            {session.accessCode}
+          </p>
+        </div>
+      ) : null}
 
       <div className="flex-1 space-y-5 overflow-y-auto px-3 pb-3">
         <nav className="space-y-0.5" aria-label="Main">
@@ -156,10 +178,10 @@ export function DashboardSidebar({
             Election countdown
           </p>
           <p className="relative mt-1 text-xs font-medium text-white/85">
-            {electionTitle}
+            {title}
           </p>
           <p className="relative mt-3 font-display text-3xl font-bold leading-none">
-            {electionDays}
+            {days}
           </p>
           <p className="relative mt-1 text-sm font-semibold text-white/90">
             Days to go
@@ -170,22 +192,27 @@ export function DashboardSidebar({
       <div className="flex items-center gap-3 border-t border-brand/10 px-4 py-4">
         <div className="relative">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-soft to-teal-soft font-display text-sm font-bold text-brand-dark">
-            NV
+            {initials}
           </div>
           <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-ink">Nikhil Verma</p>
-          <p className="text-[11px] font-medium text-ink-muted">
-            Analyst · Online
+          <p className="truncate text-sm font-bold text-ink">{displayName}</p>
+          <p className="truncate text-[11px] font-medium text-ink-muted">
+            Agency · Online
           </p>
         </div>
         <button
           type="button"
-          className="rounded-lg p-1.5 text-ink-muted transition hover:bg-brand-mist hover:text-ink"
-          aria-label="Account menu"
+          onClick={() => {
+            logout();
+            window.location.href = "/login";
+          }}
+          className="rounded-lg p-1.5 text-ink-muted transition hover:bg-brand-mist hover:text-coral"
+          aria-label="Sign out"
+          title="Sign out"
         >
-          <MoreVertical className="h-4 w-4" />
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
     </aside>

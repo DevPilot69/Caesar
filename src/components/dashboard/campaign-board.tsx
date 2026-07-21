@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, GripVertical } from "lucide-react";
 import { SuccessToast } from "@/components/dashboard/ui-states";
-import { campaignData } from "@/data/uttar-pradesh/dashboard-modules";
+import { useStatePack } from "@/lib/use-state-pack";
 
 export type CampaignStatus =
   | "Queued"
@@ -11,8 +11,18 @@ export type CampaignStatus =
   | "In progress"
   | "Done";
 
-type CampaignCard = (typeof campaignData.items)[number] & {
-  status: CampaignStatus;
+type CampaignCard = {
+  id: string;
+  action: string;
+  theatre: string;
+  owner: string;
+  due: string;
+  priority: string;
+  status: string;
+  linkedAlert: string;
+  successMetric: string;
+  blockers: string;
+  evidence: readonly string[] | string[];
 };
 
 const COLUMNS: CampaignStatus[] = [
@@ -20,35 +30,6 @@ const COLUMNS: CampaignStatus[] = [
   "Scheduled",
   "In progress",
   "Done",
-];
-
-const DONE_SEED: CampaignCard[] = [
-  {
-    id: "c7",
-    action: "Publish tanker roster — Indirapuram societies",
-    theatre: "Ghaziabad",
-    owner: "NCR Desk",
-    due: "Mon",
-    priority: "P1",
-    status: "Done",
-    linkedAlert: "a3",
-    successMetric: "Petition chatter cooled for 48h",
-    blockers: "None",
-    evidence: ["Ground g2"],
-  },
-  {
-    id: "c8",
-    action: "Counter FAQ pack — night patrol rumors",
-    theatre: "Meerut South",
-    owner: "Comms",
-    due: "Sun",
-    priority: "P0",
-    status: "Done",
-    linkedAlert: "a2",
-    successMetric: "Booth captains briefed same night",
-    blockers: "None",
-    evidence: ["Alert a2", "Brief b2"],
-  },
 ];
 
 const priorityTone: Record<string, string> = {
@@ -65,13 +46,20 @@ const columnHint: Record<CampaignStatus, string> = {
 };
 
 export function CampaignBoard() {
-  const [cards, setCards] = useState<CampaignCard[]>(() => [
-    ...(campaignData.items as CampaignCard[]),
-    ...DONE_SEED,
-  ]);
+  const pack = useStatePack();
+  const [cards, setCards] = useState<CampaignCard[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<CampaignStatus | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCards(
+      pack.campaign.items.map((item) => ({
+        ...item,
+        status: item.status as CampaignStatus,
+      })),
+    );
+  }, [pack.code, pack.campaign]);
 
   useEffect(() => {
     if (!toast) return;
@@ -87,7 +75,8 @@ export function CampaignBoard() {
       Done: [],
     };
     for (const card of cards) {
-      map[card.status].push(card);
+      const status = card.status as CampaignStatus;
+      if (map[status]) map[status].push(card);
     }
     return map;
   }, [cards]);
@@ -100,7 +89,9 @@ export function CampaignBoard() {
       },
       {
         label: "Due today",
-        value: String(cards.filter((c) => c.due === "Today" && c.status !== "Done").length),
+        value: String(
+          cards.filter((c) => c.due === "Today" && c.status !== "Done").length,
+        ),
       },
       { label: "Done", value: String(byColumn.Done.length) },
     ],
@@ -111,10 +102,8 @@ export function CampaignBoard() {
     setCards((prev) => {
       const moving = prev.find((c) => c.id === id);
       if (!moving) return prev;
-
       const without = prev.filter((c) => c.id !== id);
       const updated = { ...moving, status: to };
-
       if (beforeId) {
         const idx = without.findIndex((c) => c.id === beforeId);
         if (idx >= 0) {
@@ -123,7 +112,6 @@ export function CampaignBoard() {
           return next;
         }
       }
-
       let lastInCol = -1;
       without.forEach((c, i) => {
         if (c.status === to) lastInCol = i;
@@ -133,11 +121,8 @@ export function CampaignBoard() {
       next.splice(insertAt, 0, updated);
       return next;
     });
-
     const from = cards.find((c) => c.id === id)?.status;
-    if (from && from !== to) {
-      setToast(`Moved to ${to}`);
-    }
+    if (from && from !== to) setToast(`Moved to ${to} · ${pack.state.shortName}`);
   }
 
   function onDragStart(e: React.DragEvent, id: string) {
@@ -165,13 +150,11 @@ export function CampaignBoard() {
     setOverColumn(null);
   }
 
-  function onCardDragOver(e: React.DragEvent, col: CampaignStatus, beforeId: string) {
+  function onCardDragOver(e: React.DragEvent, col: CampaignStatus) {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
     if (overColumn !== col) setOverColumn(col);
-    // store beforeId via data attribute handled on drop
-    void beforeId;
   }
 
   function onCardDrop(
@@ -190,11 +173,9 @@ export function CampaignBoard() {
 
   return (
     <>
-      {/* Live stats override strip under Shell header is passed via children only —
-          Shell owns static stats, so we show a compact board meta row here */}
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2 px-0.5">
         <p className="text-xs text-ink-muted">
-          Drag cards across columns · drop to update status
+          {pack.state.name} board only · drag cards across columns
         </p>
         <div className="flex flex-wrap gap-1.5">
           {liveStats.map((s) => (
@@ -240,7 +221,6 @@ export function CampaignBoard() {
                   {items.length}
                 </span>
               </div>
-
               <ul className="relative z-[1] flex flex-1 flex-col gap-2">
                 {items.length === 0 ? (
                   <li
@@ -250,7 +230,9 @@ export function CampaignBoard() {
                         : "border-brand/15 bg-white/30 text-ink-muted"
                     }`}
                   >
-                    {isOver ? "Drop card here" : `No actions in ${col.toLowerCase()}`}
+                    {isOver
+                      ? "Drop card here"
+                      : `No actions in ${col.toLowerCase()}`}
                   </li>
                 ) : (
                   items.map((item) => {
@@ -261,7 +243,7 @@ export function CampaignBoard() {
                         draggable
                         onDragStart={(e) => onDragStart(e, item.id)}
                         onDragEnd={onDragEnd}
-                        onDragOver={(e) => onCardDragOver(e, col, item.id)}
+                        onDragOver={(e) => onCardDragOver(e, col)}
                         onDrop={(e) => onCardDrop(e, col, item.id)}
                         className={`group cursor-grab rounded-xl border border-white/70 bg-white/70 p-3 shadow-sm backdrop-blur-sm transition active:cursor-grabbing ${
                           isDragging
@@ -270,18 +252,14 @@ export function CampaignBoard() {
                         } ${col === "Done" ? "opacity-85" : ""}`}
                       >
                         <div className="flex items-start gap-2">
-                          <span
-                            className="mt-0.5 shrink-0 text-ink-muted/70 transition group-hover:text-brand"
-                            aria-hidden
-                          >
+                          <span className="mt-0.5 shrink-0 text-ink-muted/70 transition group-hover:text-brand">
                             <GripVertical className="h-4 w-4" />
                           </span>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
                               <span
                                 className={`rounded-md px-1.5 py-0.5 ${
-                                  priorityTone[item.priority] ??
-                                  priorityTone.P2
+                                  priorityTone[item.priority] ?? priorityTone.P2
                                 }`}
                               >
                                 {item.priority}
@@ -328,7 +306,6 @@ export function CampaignBoard() {
           );
         })}
       </div>
-
       {toast ? (
         <SuccessToast message={toast} onDismiss={() => setToast(null)} />
       ) : null}

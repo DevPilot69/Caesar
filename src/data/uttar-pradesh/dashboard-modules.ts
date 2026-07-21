@@ -778,8 +778,8 @@ export const breakingTickerItems = [
 ];
 
 export const glanceStats = [
-  { label: "New Signals", value: 28, delta: "+12%", up: true, href: "/dashboard/ground" },
-  { label: "Critical Alerts", value: 16, delta: "+8%", up: false, href: "/dashboard/alerts" },
-  { label: "Opposition Moves", value: 7, delta: "+5%", up: true, href: "/dashboard/opposition" },
-  { label: "Media Mentions", value: 42, delta: "+15%", up: true, href: "/dashboard/media" },
+  { label: "New Signals", value: "28", delta: "+12%", up: true, href: "/dashboard/ground" },
+  { label: "Critical Alerts", value: "16", delta: "+8%", up: false, href: "/dashboard/alerts" },
+  { label: "Opposition Moves", value: "7", delta: "+5%", up: true, href: "/dashboard/opposition" },
+  { label: "Media Mentions", value: "42", delta: "+15%", up: true, href: "/dashboard/media" },
 ];

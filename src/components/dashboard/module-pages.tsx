@@ -18,18 +18,11 @@ import {
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { CampaignBoard } from "@/components/dashboard/campaign-board";
 import { SuccessToast } from "@/components/dashboard/ui-states";
+import { StateScopeSwitcher } from "@/components/auth/state-scope-switcher";
+import { useStatePack } from "@/lib/use-state-pack";
+import { useAuth } from "@/lib/auth/auth-context";
 import {
-  alertsData,
-  briefsData,
-  campaignData,
-  dashboardMeta,
-  groundData,
-  mediaData,
-  oppositionData,
   productVoice,
-  reportsData,
-  settingsData,
-  trendsData,
   type Sentiment,
   type Severity,
 } from "@/data/uttar-pradesh/dashboard-modules";
@@ -79,25 +72,35 @@ function Shell({
   insight?: string;
   children: React.ReactNode;
 }) {
+  const pack = useStatePack();
+  const { session } = useAuth();
+
   return (
     <div className="dash-shell flex min-h-screen">
       <div className="sticky top-0 hidden h-screen lg:block">
         <DashboardSidebar
-          electionDays={dashboardMeta.election.daysToGo}
-          electionTitle={dashboardMeta.election.title}
+          electionDays={pack.meta.election.daysToGo}
+          electionTitle={pack.meta.election.title}
         />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="dash-header-glass border-b border-brand/8 px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:underline"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Dashboard
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:underline"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Dashboard
+            </Link>
+            <StateScopeSwitcher compact />
+          </div>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-brand">
+                {pack.state.name} view
+                {session ? ` · ${session.agencyName}` : ""}
+              </p>
               <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
                 {title}
               </h1>
@@ -132,7 +135,8 @@ function Shell({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-relaxed text-ink/90">{insight}</p>
                   <p className="mt-2 text-[11px] font-semibold text-ink-muted">
-                    Humans decide · {productVoice.tagline}
+                    Humans decide · {productVoice.tagline} · {pack.state.shortName}{" "}
+                    pack only
                   </p>
                 </div>
               </div>
@@ -169,7 +173,8 @@ function ConfidenceBadge({ value }: { value: number }) {
 }
 
 export function AlertsModulePage() {
-  const d = alertsData;
+  const pack = useStatePack();
+  const d = pack.alerts;
   const rails: Severity[] = ["Critical", "High", "Medium", "Low"];
   const bySeverity = (s: Severity) => d.items.filter((i) => i.severity === s);
 
@@ -242,7 +247,8 @@ export function AlertsModulePage() {
 }
 
 export function BriefsModulePage() {
-  const d = briefsData;
+  const pack = useStatePack();
+  const d = pack.briefs;
   const [toast, setToast] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -328,7 +334,8 @@ export function BriefsModulePage() {
 }
 
 export function CampaignModulePage() {
-  const d = campaignData;
+  const pack = useStatePack();
+  const d = pack.campaign;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <CampaignBoard />
@@ -337,7 +344,8 @@ export function CampaignModulePage() {
 }
 
 export function OppositionModulePage() {
-  const d = oppositionData;
+  const pack = useStatePack();
+  const d = pack.opposition;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <div className="dash-card relative overflow-hidden p-5 sm:p-7">
@@ -403,7 +411,8 @@ export function OppositionModulePage() {
 }
 
 export function MediaModulePage() {
-  const d = mediaData;
+  const pack = useStatePack();
+  const d = pack.media;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <div className="stagger-in grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -464,7 +473,8 @@ export function MediaModulePage() {
 }
 
 export function GroundModulePage() {
-  const d = groundData;
+  const pack = useStatePack();
+  const d = pack.ground;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <ul className="stagger-in space-y-3">
@@ -520,7 +530,8 @@ export function GroundModulePage() {
 }
 
 export function ReportsModulePage() {
-  const d = reportsData;
+  const pack = useStatePack();
+  const d = pack.reports;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <div className="stagger-in grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -573,7 +584,8 @@ export function ReportsModulePage() {
 }
 
 export function TrendsModulePage() {
-  const d = trendsData;
+  const pack = useStatePack();
+  const d = pack.trends;
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
       <ul className="stagger-in space-y-3">
@@ -626,7 +638,8 @@ export function TrendsModulePage() {
 }
 
 export function SettingsModulePage() {
-  const d = settingsData;
+  const pack = useStatePack();
+  const d = pack.settings;
   return (
     <Shell
       title={d.title}
