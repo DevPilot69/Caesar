@@ -16,6 +16,7 @@ import {
   Minus,
 } from "lucide-react";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { CampaignBoard } from "@/components/dashboard/campaign-board";
 import { SuccessToast } from "@/components/dashboard/ui-states";
 import {
   alertsData,
@@ -328,64 +329,9 @@ export function BriefsModulePage() {
 
 export function CampaignModulePage() {
   const d = campaignData;
-  const columns = ["In progress", "Scheduled", "Queued"] as const;
-
   return (
     <Shell title={d.title} subtitle={d.subtitle} stats={d.stats} insight={d.insight}>
-      <div className="stagger-in grid gap-4 lg:grid-cols-3">
-        {columns.map((col) => {
-          const items = d.items.filter((i) => i.status === col);
-          return (
-            <section key={col} className="dash-card flex flex-col p-3.5">
-              <div className="relative z-[1] mb-3 flex items-center justify-between px-1">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-ink">
-                  {col}
-                </h3>
-                <span className="rounded-full bg-brand-mist px-2 py-0.5 text-[10px] font-bold text-brand">
-                  {items.length}
-                </span>
-              </div>
-              {items.length === 0 ? (
-                <div className="relative z-[1] rounded-xl border border-dashed border-brand/15 bg-white/30 px-3 py-10 text-center text-xs text-ink-muted">
-                  No actions in {col.toLowerCase()}
-                </div>
-              ) : (
-                <ul className="relative z-[1] space-y-2">
-                  {items.map((item) => (
-                    <li
-                      key={item.id}
-                      className="rounded-xl border border-white/70 bg-white/60 p-3 shadow-sm backdrop-blur-sm"
-                    >
-                      <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
-                        <span className="rounded-md bg-coral-soft px-1.5 py-0.5 text-coral">
-                          {item.priority}
-                        </span>
-                        <span className="text-brand">{item.theatre}</span>
-                        <span className="text-ink-muted">Due {item.due}</span>
-                      </div>
-                      <p className="mt-2 text-sm font-semibold leading-snug text-ink">
-                        {item.action}
-                      </p>
-                      <p className="mt-2 text-[11px] font-semibold text-brand-dark">
-                        Success · {item.successMetric}
-                      </p>
-                      <p className="mt-1 text-[11px] text-ink-muted">
-                        Linked · {item.linkedAlert}
-                      </p>
-                      <p className="mt-1 text-[11px] text-ink-muted">
-                        Blockers · {item.blockers}
-                      </p>
-                      <p className="mt-2 text-[11px] text-ink-muted">
-                        {item.owner}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          );
-        })}
-      </div>
+      <CampaignBoard />
     </Shell>
   );
 }

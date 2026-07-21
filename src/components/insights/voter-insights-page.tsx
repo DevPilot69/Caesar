@@ -12,6 +12,8 @@ import {
   Menu,
   Search,
   Sparkles,
+  Target,
+  TrendingUp,
   Users,
   X,
   Zap,
@@ -35,6 +37,18 @@ const swingTone = {
   "High Swing": "bg-coral-soft text-coral",
   "Medium Swing": "bg-accent-soft text-[#8a6f2e]",
 } as const;
+
+const riskTone: Record<string, string> = {
+  High: "bg-coral-soft text-coral",
+  Medium: "bg-accent-soft text-[#8a6f2e]",
+  Watch: "bg-brand-mist text-brand",
+};
+
+const sentimentTone: Record<string, string> = {
+  Negative: "text-coral",
+  Mixed: "text-[#8a6f2e]",
+  Opportunity: "text-brand",
+};
 
 function FilterSelect({
   label,
@@ -275,6 +289,76 @@ export function VoterInsightsPage() {
         </header>
 
         <main className="flex-1 space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+          <article className="dash-card relative overflow-hidden p-4 sm:p-5">
+            <div className="pointer-events-none absolute -right-6 top-1/2 h-28 w-28 -translate-y-1/2 rounded-full bg-brand/15 blur-3xl" />
+            <div className="relative z-[1] flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-brand/15 bg-white/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
+                  <Sparkles className="h-3 w-3" />
+                  AI Assisted
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-ink/90">
+                  {data.insight}
+                </p>
+                <p className="mt-2 text-[11px] font-semibold text-ink-muted">
+                  Humans decide · Evidence-backed · not a black box
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <span className="rounded-xl border border-white/70 bg-white/55 px-3 py-2 text-center backdrop-blur-md">
+                  <p className="text-[10px] font-bold uppercase text-ink-muted">
+                    Confidence
+                  </p>
+                  <p className="font-display text-lg font-bold text-brand">
+                    {data.confidence}%
+                  </p>
+                </span>
+                <span className="rounded-xl border border-white/70 bg-white/55 px-3 py-2 text-center backdrop-blur-md">
+                  <p className="text-[10px] font-bold uppercase text-ink-muted">
+                    Evidence
+                  </p>
+                  <p className="font-display text-lg font-bold text-ink">
+                    {data.evidenceCount}
+                  </p>
+                </span>
+              </div>
+            </div>
+            <div className="relative z-[1] mt-3 flex flex-wrap gap-1.5">
+              {data.sources.map((src) => (
+                <span
+                  key={src}
+                  className="rounded-full border border-brand/10 bg-white/60 px-2 py-0.5 text-[10px] font-semibold text-ink-muted"
+                >
+                  {src}
+                </span>
+              ))}
+            </div>
+          </article>
+
+          <div className="stagger-in grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {data.kpis.map((kpi) => (
+              <article key={kpi.label} className="dash-card p-4">
+                <p className="relative z-[1] text-[10px] font-bold uppercase tracking-wide text-ink-muted">
+                  {kpi.label}
+                </p>
+                <p className="relative z-[1] font-display mt-1 text-2xl font-bold text-ink">
+                  {kpi.value}
+                </p>
+                <p
+                  className={`relative z-[1] mt-1 text-[11px] font-semibold ${
+                    kpi.tone === "up"
+                      ? "text-brand"
+                      : kpi.tone === "warn"
+                        ? "text-coral"
+                        : "text-ink-muted"
+                  }`}
+                >
+                  {kpi.delta}
+                </p>
+              </article>
+            ))}
+          </div>
+
           <div className="stagger-in grid gap-5 xl:grid-cols-2">
             <div className="space-y-5">
               <article className="dash-card p-5">
@@ -314,11 +398,21 @@ export function VoterInsightsPage() {
                       </thead>
                       <tbody className="divide-y divide-brand/8">
                         {data.previousWinners.map((r) => (
-                          <tr key={r.year} className="transition hover:bg-white/40">
+                          <tr
+                            key={r.year}
+                            className="transition hover:bg-white/40"
+                          >
                             <td className="py-2.5 font-semibold text-ink">
                               {r.year}
                             </td>
-                            <td className="py-2.5 text-ink/85">{r.winner}</td>
+                            <td className="py-2.5 text-ink/85">
+                              <span className="block font-semibold">
+                                {r.winner}
+                              </span>
+                              <span className="text-[10px] text-ink-muted">
+                                {r.voteShare} · {r.note}
+                              </span>
+                            </td>
                             <td className="py-2.5">
                               <span
                                 className={`rounded-md px-1.5 py-0.5 font-bold ${partyTone[r.party] ?? partyTone.OTH}`}
@@ -343,33 +437,93 @@ export function VoterInsightsPage() {
                   <div className="relative z-[1]">
                     <TurnoutBarChart data={data.turnoutHistory} />
                   </div>
+                  <p className="relative z-[1] mt-2 rounded-xl border border-brand/10 bg-brand-mist/60 px-3 py-2 text-[11px] leading-relaxed text-ink/85">
+                    Gender gap {data.genderGap.gap2022} ({data.genderGap.trend}
+                    ). {data.genderGap.note}
+                  </p>
                 </article>
               </div>
 
               <article className="dash-card p-5">
-                <h3 className="relative z-[1] font-display text-base font-bold text-ink">
-                  Swing Analysis
-                </h3>
+                <div className="relative z-[1] flex items-center justify-between gap-2">
+                  <h3 className="font-display text-base font-bold text-ink">
+                    Swing Analysis
+                  </h3>
+                  <span className="text-[10px] font-bold text-ink-muted">
+                    Driver · confidence · next
+                  </span>
+                </div>
                 <ul className="relative z-[1] mt-3 grid gap-2 sm:grid-cols-2">
                   {data.swingAnalysis.map((s) => (
                     <li
                       key={s.segment}
-                      className="flex items-center justify-between rounded-xl border border-white/70 bg-white/40 px-3 py-2.5 backdrop-blur-sm transition hover:bg-white/65"
+                      className="rounded-xl border border-white/70 bg-white/40 px-3 py-2.5 backdrop-blur-sm transition hover:bg-white/65"
                     >
-                      <span className="text-sm font-semibold text-ink">
-                        {s.segment}
-                      </span>
-                      <span
-                        className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${swingTone[s.level]}`}
-                      >
-                        {s.level}
-                      </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-semibold text-ink">
+                          {s.segment}
+                        </span>
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${swingTone[s.level]}`}
+                        >
+                          {s.level}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-[11px] text-ink-muted">
+                        {s.share} · {s.driver}
+                      </p>
+                      <p className="mt-1 text-[10px] font-bold text-brand">
+                        {s.confidence}% conf
+                      </p>
+                      <p className="mt-1.5 text-[11px] font-semibold text-brand-dark">
+                        Next · {s.nextAction}
+                      </p>
                     </li>
                   ))}
                 </ul>
                 <p className="relative z-[1] mt-3 rounded-xl border border-brand/10 bg-gradient-to-r from-brand-soft/80 to-teal-soft/50 px-3 py-2.5 text-xs font-semibold text-brand-dark">
                   Overall swing in 2022 vs 2017: {data.overallSwing}
                 </p>
+              </article>
+
+              <article className="dash-card p-5">
+                <div className="relative z-[1] mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-brand" />
+                  <h3 className="font-display text-base font-bold text-ink">
+                    Issue Heat
+                  </h3>
+                </div>
+                <ul className="relative z-[1] space-y-3">
+                  {data.issueHeat.map((issue) => (
+                    <li
+                      key={issue.issue}
+                      className="rounded-xl border border-white/70 bg-white/45 p-3 backdrop-blur-sm"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-ink">
+                          {issue.issue}
+                        </p>
+                        <span
+                          className={`text-[10px] font-bold ${sentimentTone[issue.sentiment] ?? "text-ink-muted"}`}
+                        >
+                          {issue.sentiment} · {issue.intensity}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/50">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-brand to-teal"
+                          style={{ width: `${issue.intensity}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-[11px] text-ink-muted">
+                        Wards {issue.wards} · {issue.evidence}
+                      </p>
+                      <p className="mt-1 text-[11px] font-semibold text-brand-dark">
+                        Decision · {issue.decision}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </article>
             </div>
 
@@ -385,6 +539,17 @@ export function VoterInsightsPage() {
                     centerValue={data.totalVoters}
                   />
                 </div>
+                <ul className="relative z-[1] mt-3 grid grid-cols-2 gap-2">
+                  {data.ageGroups.map((g) => (
+                    <li
+                      key={g.label}
+                      className="rounded-lg border border-white/60 bg-white/40 px-2.5 py-1.5 text-[11px]"
+                    >
+                      <span className="font-bold text-ink">{g.label}</span>
+                      <span className="text-ink-muted"> · {g.count}</span>
+                    </li>
+                  ))}
+                </ul>
               </article>
 
               <article className="dash-card p-5">
@@ -395,7 +560,12 @@ export function VoterInsightsPage() {
                   {data.communities.map((c, i) => (
                     <li key={c.label}>
                       <div className="mb-1.5 flex justify-between text-xs">
-                        <span className="font-semibold text-ink">{c.label}</span>
+                        <span className="font-semibold text-ink">
+                          {c.label}
+                          <span className="ml-1.5 font-normal text-ink-muted">
+                            {c.note}
+                          </span>
+                        </span>
                         <span className="font-bold text-brand">{c.percent}%</span>
                       </div>
                       <div className="h-2.5 overflow-hidden rounded-full border border-white/60 bg-white/35">
@@ -410,6 +580,24 @@ export function VoterInsightsPage() {
                     </li>
                   ))}
                 </ul>
+                <div className="relative z-[1] mt-4 grid grid-cols-2 gap-2">
+                  {data.casteClusters.map((c) => (
+                    <div
+                      key={c.label}
+                      className="rounded-xl border border-white/60 bg-white/40 px-2.5 py-2"
+                    >
+                      <p className="text-[10px] font-bold uppercase text-ink-muted">
+                        {c.label}
+                      </p>
+                      <p className="font-display text-lg font-bold text-ink">
+                        {c.percent}%
+                      </p>
+                      <p className="text-[10px] font-semibold text-brand">
+                        {c.lean}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </article>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -431,6 +619,16 @@ export function VoterInsightsPage() {
                   <p className="relative z-[1] mt-2 inline-flex rounded-md bg-brand-soft px-1.5 py-0.5 text-[11px] font-bold text-brand">
                     {data.womenVoters.note}
                   </p>
+                  <div className="relative z-[1] mt-2 flex flex-wrap gap-1">
+                    {data.womenVoters.priorityIssues.map((iss) => (
+                      <span
+                        key={iss}
+                        className="rounded-md border border-brand/10 bg-white/50 px-1.5 py-0.5 text-[10px] font-semibold text-ink-muted"
+                      >
+                        {iss}
+                      </span>
+                    ))}
+                  </div>
                 </article>
                 <article className="dash-card p-4">
                   <div className="relative z-[1] flex items-center gap-2 text-teal">
@@ -450,6 +648,16 @@ export function VoterInsightsPage() {
                   <span className="relative z-[1] mt-2 inline-flex rounded-md bg-teal-soft px-1.5 py-0.5 text-[10px] font-bold text-teal">
                     {data.youthVoters.note}
                   </span>
+                  <div className="relative z-[1] mt-2 flex flex-wrap gap-1">
+                    {data.youthVoters.priorityIssues.map((iss) => (
+                      <span
+                        key={iss}
+                        className="rounded-md border border-brand/10 bg-white/50 px-1.5 py-0.5 text-[10px] font-semibold text-ink-muted"
+                      >
+                        {iss}
+                      </span>
+                    ))}
+                  </div>
                 </article>
               </div>
 
@@ -470,19 +678,100 @@ export function VoterInsightsPage() {
                   </div>
                 </div>
                 <div className="relative z-[1] mt-3 flex justify-between text-xs font-semibold">
-                  <span className="inline-flex items-center gap-1.5 text-teal">
-                    <span className="h-2 w-2 rounded-full bg-teal" />
-                    Urban {data.urbanRural.urban.percent}% ·{" "}
-                    {data.urbanRural.urban.count}
+                  <span className="inline-flex flex-col gap-0.5 text-teal">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-teal" />
+                      Urban {data.urbanRural.urban.percent}% ·{" "}
+                      {data.urbanRural.urban.count}
+                    </span>
+                    <span className="pl-3.5 text-[10px] text-ink-muted">
+                      Mood · {data.urbanRural.urban.mood}
+                    </span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-brand">
-                    <span className="h-2 w-2 rounded-full bg-brand" />
-                    Rural {data.urbanRural.rural.percent}% ·{" "}
-                    {data.urbanRural.rural.count}
+                  <span className="inline-flex flex-col items-end gap-0.5 text-brand">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-brand" />
+                      Rural {data.urbanRural.rural.percent}% ·{" "}
+                      {data.urbanRural.rural.count}
+                    </span>
+                    <span className="pr-3.5 text-[10px] text-ink-muted">
+                      Mood · {data.urbanRural.rural.mood}
+                    </span>
                   </span>
                 </div>
+                <p className="relative z-[1] mt-3 rounded-xl border border-brand/10 bg-white/40 px-3 py-2 text-[11px] text-ink-muted">
+                  Elector growth {data.electorGrowth.vs2017} · +
+                  {data.electorGrowth.newEnrollments24m} enrollments / −
+                  {data.electorGrowth.deletions24m} deletions (24m).{" "}
+                  {data.electorGrowth.note}
+                </p>
+              </article>
+
+              <article className="dash-card p-5">
+                <div className="relative z-[1] mb-3 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-brand" />
+                  <h3 className="font-display text-base font-bold text-ink">
+                    Booth Priorities
+                  </h3>
+                </div>
+                <ul className="relative z-[1] space-y-2">
+                  {data.boothPriorities.map((b) => (
+                    <li
+                      key={b.booth}
+                      className="rounded-xl border border-white/70 bg-white/50 px-3 py-2.5 backdrop-blur-sm"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-bold text-ink">{b.booth}</p>
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${riskTone[b.risk]}`}
+                        >
+                          {b.risk}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-ink-muted">
+                        {b.voters} electors · last turnout {b.lastTurnout}
+                      </p>
+                      <p className="mt-1 text-[11px] text-ink/85">{b.why}</p>
+                      <p className="mt-1 text-[11px] font-semibold text-brand-dark">
+                        Action · {b.action}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </article>
             </div>
+          </div>
+
+          <div className="stagger-in grid gap-5 lg:grid-cols-3">
+            {data.decisions.map((d) => (
+              <article key={d.title} className="dash-card p-5">
+                <div className="relative z-[1] flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-brand" />
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-brand">
+                    Decision · {d.confidence}% conf
+                  </p>
+                </div>
+                <h3 className="relative z-[1] font-display mt-2 text-base font-bold text-ink">
+                  {d.title}
+                </h3>
+                <p className="relative z-[1] mt-2 text-xs leading-relaxed text-ink-muted">
+                  {d.why}
+                </p>
+                <p className="relative z-[1] mt-3 text-xs font-semibold text-brand-dark">
+                  Next · {d.nextAction}
+                </p>
+                <div className="relative z-[1] mt-2 flex flex-wrap gap-1">
+                  {d.evidence.map((e) => (
+                    <span
+                      key={e}
+                      className="rounded-md border border-brand/10 bg-white/50 px-1.5 py-0.5 text-[10px] font-semibold text-ink-muted"
+                    >
+                      {e}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))}
           </div>
 
           <div className="stagger-in grid gap-5 lg:grid-cols-[1.35fr_0.9fr]">
@@ -500,11 +789,19 @@ export function VoterInsightsPage() {
               <ul className="relative z-[1] mt-4 space-y-2.5">
                 {data.aiInsights.map((insight) => (
                   <li
-                    key={insight}
-                    className="flex gap-2.5 rounded-xl border border-white/50 bg-white/35 px-3 py-2.5 text-sm leading-relaxed text-ink/85 backdrop-blur-sm"
+                    key={insight.text}
+                    className="rounded-xl border border-white/50 bg-white/35 px-3 py-2.5 backdrop-blur-sm"
                   >
-                    <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />
-                    {insight}
+                    <div className="flex gap-2.5 text-sm leading-relaxed text-ink/85">
+                      <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />
+                      {insight.text}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-6 text-[10px] font-semibold text-ink-muted">
+                      <span className="rounded-md bg-brand-mist px-1.5 py-0.5 text-brand">
+                        {insight.confidence}% conf
+                      </span>
+                      <span>{insight.evidence}</span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -521,7 +818,8 @@ export function VoterInsightsPage() {
               </h3>
               <p className="relative mt-2 text-sm text-white/80">
                 Download a PDF with historical summary, demographics, swing
-                segments, and recommended outreach for {constituency}.
+                segments, booth priorities, and recommended outreach for{" "}
+                {constituency}.
               </p>
               <ul className="relative mt-4 space-y-1.5">
                 {data.briefChecklist.map((item) => (
